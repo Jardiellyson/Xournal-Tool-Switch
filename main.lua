@@ -1,6 +1,10 @@
+require("configs");
 current_tool = 1;
 tool_index = 1;
-color_index = 1;
+color_index = {
+    pen = 1,
+    highlighter = 1
+};
 
 function initUi()
     print("Plugin de atalhos iniciado");
@@ -46,22 +50,26 @@ function toggleTool()
         tool_index = 1;
     end;
 
+    --color = color_palette[color_index].color;
+
     app.changeActionState("select-tool", app.C["Tool_" .. c.tools.list[tool_index]]);
-if (getCurrentTool() ~= 2) and (getCurrentTool() ~= 13) then app.changeToolColor({["color"] = color_palette[color_index].color, ["selection"] = true}); end;
+    --setToolColor(color);
 end;
 
 
 function toggleColor()
     color_palette = getColorPalette();
-    color_index = color_index + 1;
-    if color_index > #color_palette then
-        color_index = 1;
+    if getCurrentTool() == 1 then
+        color_index.pen = color_index.pen + 1;
+        if color_index.pen > #color_palette then color_index.pen = 1; end;
+    elseif getCurrentTool() == 3 then
+        color_index.highlighter = color_index.highlighter + 1;
+        if color_index.pen > #color_palette then color_index.pen = 1; end;
     end;
 
-    if (getCurrentTool() ~= 2) and (getCurrentTool() ~= 13) then app.changeToolColor({["color"] = color_palette[color_index].color, ["selection"] = true}); end;
+    color = getToolColor();
+    setToolColor(color);
 end;
-
-
 
 function getCurrentTool()
     return app.getActionState("select-tool");
@@ -73,4 +81,19 @@ end;
 
 function getColorPalette()
     return app.getColorPalette();
+end;
+
+function setToolColor(color)
+    if (getCurrentTool() == 1) or (getCurrentTool() == 3) then
+        app.changeToolColor({["color"] = color, ["selection"] = true});
+    end;
+end;
+
+function getToolColor()
+    color_palette = getColorPalette();
+     if getCurrentTool() == 1 then
+        return color_palette[color_index.pen].color;
+    elseif getCurrentTool() == 3 then
+        return color_palette[color_index.highlighter].color;
+    end;
 end;
